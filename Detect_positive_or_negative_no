@@ -1,0 +1,97 @@
+%macro scall 2
+    mov eax,4
+    mov ebx,1
+    mov ecx,%1
+    mov edx,%2
+    int 80h
+%endmacro
+
+section .data
+    arr db 4h,-5h,6h,-8h,7h,-10h,-15h
+    arrlen equ $-arr
+    nmsg db "Count of negative nos : "
+    nmsglen equ $-nmsg
+    pmsg db "count of positive nos : "
+    pmsglen equ $-pmsg
+    pos db "positive : "
+    nega db "negative : "
+    endl db 10
+    
+section .bss
+    pcnt resb 8
+    ncnt resb 8
+    char_ans resb 8
+    
+section .text
+    global _start
+    _start:
+        
+        mov esi,arr
+        mov edi,arrlen
+        mov ecx,0
+        mov edx,0
+        
+        up:
+            mov eax,[esi]
+            cmp eax,0000h
+            js negative
+        
+        positive:
+            ;scall pos,8
+            ;scall endl,1
+            inc ecx
+            jmp next
+        
+        negative:
+            ;scall nega,8
+            ;scall endl,1
+            inc edx
+            jmp next
+            
+        next:
+            add esi,1
+            dec edi
+            jnz up
+        
+        
+        mov [ncnt],edx
+        mov [pcnt],ecx
+        
+        scall pmsg,pmsglen
+        mov eax,[pcnt]
+        call display
+        scall endl,1
+        
+        scall nmsg,nmsglen
+        mov eax,[ncnt]
+        call display
+        scall endl,1
+    
+   	 
+   	 mov eax,1
+   	 mov ebx,0
+   	 int 80h
+   	 
+   	 
+display:
+    mov esi,char_ans+7
+    mov ecx,2
+    
+    cnt:
+   	 mov edx,0
+   	 mov ebx,16h
+   	 div ebx
+   	 cmp dl,09h
+   	 jbe add30
+   	 add dl,07h
+   	 
+    add30:
+   	 add dl,30h
+   	 mov [esi],dl
+   	 dec esi
+   	 dec ecx
+   	 jnz cnt
+   	 
+    scall char_ans,8
+    
+ret
